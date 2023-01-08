@@ -46,6 +46,7 @@ use crate::chunk::ChunkType;
             assert!(!chunk.is_public());
         }
 
+
         #[test]
         pub fn test_chunk_type_is_reserved_bit_valid() {
             let chunk = ChunkType::from_str("RuSt").unwrap();
