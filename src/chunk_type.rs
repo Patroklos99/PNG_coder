@@ -1,5 +1,6 @@
+
 #![allow(unused_variables)]
-fn main() {
+use crate::chunk::ChunkType;
     #[cfg(test)]
     mod tests {
         use super::*;
@@ -98,4 +99,3 @@ fn main() {
             let _are_chunks_equal = chunk_type_1 == chunk_type_2;
         }
     }
-}

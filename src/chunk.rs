@@ -1,12 +1,13 @@
 use std::fmt;
-use std::fmt::{Formatter, write};
+use std::fmt::{format, Formatter, write};
+use std::ops::Add;
 use std::str::FromStr;
 use std::thread::current;
 
 
-#[derive(Debug, PartialEq, Eq)]
-struct ChunkType {
-    chunk_t : [u8; 4],
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ChunkType {
+    pub(crate) chunk_t : [u8; 4],
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -14,32 +15,37 @@ pub struct ParseChunkError;
 
 impl ChunkType {
     fn new(chunk : String) -> Self {
+        let char1: Vec<u8> = chunk.as_bytes().to_vec();
         Self {
-            chunk_t : [chunk[0], chunk[1], chunk[2], chunk[3]]
+          chunk_t : [char1[0], char1[1], char1[2], char1[2]]
         }
     }
 
-    fn bytes(&self) -> [u8;4] {
+    pub fn bytes(&self) -> [u8;4] {
         self.chunk_t
     }
 
-    fn is_valid(&self) -> bool {
-        self.chunk_t.len() == 4
+    pub(crate) fn is_valid(&self) -> bool {
+        self.is_reserved_bit_valid()
     }
 
-    fn is_critical(&self) -> bool {
-        self.chunk_t[0] == 0
+    //validate 5th bit of the first indexed charactere is Critical (0 (uppercase) = critical)
+    pub(crate) fn is_critical(&self) -> bool {
+        let x = format!("0{:b}", self.bytes()[0]);
+        x.chars().nth(5).unwrap() as u8 - '0' as u8 == 0
     }
 
-    fn is_public(&self) -> bool {
-        self.chunk_t[1] == 0
+    pub(crate) fn is_public(&self) -> bool {
+        let x = format!("{:b}", self.bytes()[1]);
+        let my_int :u32 = x.parse().unwrap();
+        my_int & (1 << 5) == 0
     }
 
-    fn is_reserved_bit_valid(&self) -> bool {
+    pub(crate) fn is_reserved_bit_valid(&self) -> bool {
         self.chunk_t[2] == 0
     }
 
-    fn is_safe_to_copy(&self) -> bool {
+    pub(crate) fn is_safe_to_copy(&self) -> bool {
         self.chunk_t[3] == 1
     }
 }
@@ -60,8 +66,8 @@ impl FromStr for ChunkType {
     type Err = (ParseChunkError);
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let chunk_t = s.parse::<String>().map_err(|_| ParseChunkError)?;
-        Ok(chunk_t.parse()?)
+        let char1: Vec<u8> = s.as_bytes().to_vec();
+        Ok(ChunkType { chunk_t: [char1[0], char1[1], char1[2], char1[3]]})
     }
 }
 
