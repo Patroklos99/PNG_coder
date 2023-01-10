@@ -1,6 +1,7 @@
 #![allow(unused_variables)]
 
 use std::io::Read;
+use std::string::FromUtf8Error;
 use crate::chunk_type::ChunkType;
 
 pub const MAX: u32 = u32::MAX;
@@ -33,6 +34,11 @@ impl Chunk {
 
     pub fn chunk_type(&self) -> &ChunkType {
         &self.chunk_type
+    }
+
+    pub fn data_as_string(&self) -> Result<String, FromUtf8Error> {
+        let x = self.chunk_data.clone();
+        String::from_utf8(x.try_into().unwrap())
     }
 }
 
@@ -102,20 +108,20 @@ mod tests {
         assert_eq!(chunk.chunk_type().to_string(), String::from("RuSt"));
     }
 
-    // #[test]
-    // fn test_chunk_string() {
-    //     let chunk = testing_chunk();
-    //     let chunk_string = chunk.data_as_string().unwrap();
-    //     let expected_chunk_string = String::from("This is where your secret message will be!");
-    //     assert_eq!(chunk_string, expected_chunk_string);
-    // }
-    //
-    // #[test]
-    // fn test_chunk_crc() {
-    //     let chunk = testing_chunk();
-    //     assert_eq!(chunk.crc(), 2882656334);
-    // }
-    //
+    #[test]
+    fn test_chunk_string() {
+        let chunk = testing_chunk();
+        let chunk_string = chunk.data_as_string().unwrap();
+        let expected_chunk_string = String::from("This is where your secret message will be!");
+        assert_eq!(chunk_string, expected_chunk_string);
+    }
+
+    #[test]
+    fn test_chunk_crc() {
+        let chunk = testing_chunk();
+        assert_eq!(chunk.crc(), 2882656334);
+    }
+
     // #[test]
     // fn test_valid_chunk_from_bytes() {
     //     let data_length: u32 = 42;
