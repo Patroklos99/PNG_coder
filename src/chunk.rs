@@ -15,14 +15,14 @@ pub const U32_MAX_HALF: u32 = MAX / 2;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Chunk {
-    length: u32,
-    chunk_type: ChunkType,
-    chunk_data: Vec<u8>,
-    crc: u32,
+    pub(crate) length: u32,
+    pub(crate) chunk_type: ChunkType,
+    pub(crate) chunk_data: Vec<u8>,
+    pub(crate) crc: u32,
 }
 
 impl Chunk {
-    fn new(chunk_type: ChunkType, chunk_data: Vec<u8>) -> Self {
+    pub(crate) fn new(chunk_type: ChunkType, chunk_data: Vec<u8>) -> Self {
         Self {
             length: 42,
             chunk_type,
@@ -74,7 +74,8 @@ impl TryFrom<&[u8]> for Chunk {
 
 impl fmt::Display for Chunk {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        todo!()
+        let x = self.chunk_data.clone();
+        write!(f, "{} {} {} {}", self.length, self.chunk_type.to_string(), String::from_utf8(x).unwrap(), self.crc)
     }
 }
 
