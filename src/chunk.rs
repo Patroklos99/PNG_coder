@@ -11,6 +11,7 @@ use crc::{Crc, Algorithm, CRC_32_ISO_HDLC};
 
 pub const MAX: u32 = u32::MAX;
 pub const X25: Crc<u32> = Crc::<u32>::new(&CRC_32_ISO_HDLC);
+pub const U32_MAX_HALF: u32 = MAX / 2;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Chunk {
@@ -53,11 +54,12 @@ impl TryFrom<&[u8]> for Chunk {
     type Error = &'static str;
 
     fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
+        // 2147483648
         let crc_valid = X25.checksum(&value[4..value.len() - 4]);
         let crc_to_test = u32::from_be_bytes(value[value.len() - 4..value.len()].try_into().unwrap());
         // let str = String::from_utf8(value[4..value.len() - 4].to_owned());
         let len = u32::from_be_bytes(value[0..4].try_into().unwrap());
-        if len > 2147483648 || crc_to_test != crc_valid {
+        if len > U32_MAX_HALF || crc_to_test != crc_valid {
             Err("error")
         } else {
             Ok(Chunk {
