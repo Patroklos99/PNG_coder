@@ -1,5 +1,3 @@
-extern crate core;
-
 use crate::chunk_type::ChunkType;
 
 mod args;
