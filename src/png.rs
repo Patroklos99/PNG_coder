@@ -4,7 +4,11 @@ use super::{
     chunk::{Chunk}, chunk_type::{
         ChunkType},
 };
+use std::convert::TryFrom;
+use std::fs;
+use std::path::Path;
 use std::{fmt, str::FromStr};
+// use std::io::Result;
 
 #[derive(Debug, Clone)]
 pub struct Png {
@@ -28,13 +32,13 @@ impl Png {
 impl TryFrom<&[u8]> for Png {
     type Error = ();
 
-    fn try_from(value: &[u8]) -> Result<Png> {
+    fn try_from(value: &[u8]) -> Result<Png, Self::Error> {
         type Error = ();
         let x = ChunkType {
             chunk_t: [82, 82, 82, 82],
-        }
+        };
         if value.len() < 8 || &value[..8] != &Self::STANDARD_HEADER {
-            return Err("test");
+            return Err(());
         }
         Ok(Self {
             chunks: vec![Chunk::new(x, vec![71,71,71,71])]
@@ -49,6 +53,8 @@ mod tests {
     use crate::chunk::Chunk;
     use std::str::FromStr;
     use std::convert::TryFrom;
+    use std::io;
+    use std::string::FromUtf8Error;
 
     fn testing_chunks() -> Vec<Chunk> {
         let mut chunks = Vec::new();
@@ -65,7 +71,7 @@ mod tests {
     //     Png::from_chunks(chunks)
     // }
 
-    fn chunk_from_strings(chunk_type: &str, data: &str) -> Result<Chunk> {
+    fn chunk_from_strings(chunk_type: &str, data: &str) -> io::Result<Chunk> {
         use std::str::FromStr;
 
         let chunk_type = ChunkType::from_str(chunk_type)?;

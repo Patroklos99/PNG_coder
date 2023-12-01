@@ -6,7 +6,6 @@ use std::ops::{Add, Not};
 use std::str::FromStr;
 use std::thread::current;
 
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ChunkType {
     pub(crate) chunk_t: [u8; 4],
